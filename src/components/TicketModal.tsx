@@ -18,6 +18,7 @@ export default function TicketModal({ isOpen, onClose }: TicketModalProps) {
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [ticketNumber, setTicketNumber] = useState('')
+  const [copied, setCopied] = useState(false)
   // const supabase = createClient()
 
   const deviceOptions = [
@@ -92,6 +93,16 @@ export default function TicketModal({ isOpen, onClose }: TicketModalProps) {
     return `${devicePrefix}${dateString}${randomSuffix}`
   }
 
+  const copyTicketNumber = async () => {
+    try {
+      await navigator.clipboard.writeText(ticketNumber)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000) // Reset after 2 seconds
+    } catch (err) {
+      console.error('Failed to copy ticket number:', err)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -152,6 +163,7 @@ export default function TicketModal({ isOpen, onClose }: TicketModalProps) {
     setSuccess(false)
     setError(null)
     setTicketNumber('')
+    setCopied(false)
     onClose()
   }
 
@@ -306,7 +318,24 @@ export default function TicketModal({ isOpen, onClose }: TicketModalProps) {
             <h3 className="text-2xl font-bold text-white mb-4">Ticket Created Successfully!</h3>
             <div className="bg-white/10 rounded-2xl p-6 mb-6">
               <p className="text-white/80 mb-2">Your ticket number is:</p>
-              <p className="text-3xl font-bold text-emerald-400 font-mono">{ticketNumber}</p>
+              <div className="flex items-center justify-center gap-3">
+                <p className="text-3xl font-bold text-emerald-400 font-mono">{ticketNumber}</p>
+                <button
+                  onClick={copyTicketNumber}
+                  className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors group"
+                  title={copied ? "Copied!" : "Copy ticket number"}
+                >
+                  {copied ? (
+                    <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5 text-white/70 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
             </div>
             <div className="space-y-2 text-left bg-white/5 rounded-xl p-4 mb-6">
               <p className="text-white/80"><span className="font-medium">Device:</span> {device}</p>
