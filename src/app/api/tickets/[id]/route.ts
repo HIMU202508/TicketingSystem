@@ -21,6 +21,7 @@ type DbTicketRow = {
   facility: string
   status: Status
   description: string | null
+  serial_number: string | null
   assigned_to: string | null
   created_at: string
   updated_at: string
@@ -37,6 +38,7 @@ function mapRowToTicket(row: DbTicketRow) {
     owner_name: row.owner_name,
     facility: row.facility,
     status: row.status,
+    serial_number: row.serial_number ?? null,
     assigned_to: row.assigned_to ?? null,
     created_at: row.created_at,
     updated_at: row.updated_at,
