@@ -11,6 +11,7 @@ interface TicketModalProps {
 export default function TicketModal({ isOpen, onClose }: TicketModalProps) {
   const [device, setDevice] = useState('')
   const [repairReason, setRepairReason] = useState('')
+  const [serialNumber, setSerialNumber] = useState('')
   const [ownerName, setOwnerName] = useState('')
   const [facility, setFacility] = useState('')
   const [loading, setLoading] = useState(false)
@@ -111,7 +112,8 @@ export default function TicketModal({ isOpen, onClose }: TicketModalProps) {
           repairReason,
           ownerName,
           facility: facility.toUpperCase(),
-          ticketNumber: generatedTicketNumber
+          ticketNumber: generatedTicketNumber,
+          serialNumber: serialNumber || undefined
         })
       })
 
@@ -144,6 +146,7 @@ export default function TicketModal({ isOpen, onClose }: TicketModalProps) {
   const handleClose = () => {
     setDevice('')
     setRepairReason('')
+    setSerialNumber('')
     setOwnerName('')
     setFacility('')
     setSuccess(false)
@@ -215,6 +218,20 @@ export default function TicketModal({ isOpen, onClose }: TicketModalProps) {
                   rows={3}
                   placeholder={"Describe what\u2019s wrong with the device or why it needs repair..."}
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                />
+              </div>
+
+              {/* Serial Number */}
+              <div>
+                <label className="block text-sm font-medium text-white/80 mb-2">
+                  Serial Number <span className="text-white/50">(Optional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={serialNumber}
+                  onChange={(e) => setSerialNumber(e.target.value)}
+                  placeholder="Enter device serial number (if available)"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
               </div>
 
