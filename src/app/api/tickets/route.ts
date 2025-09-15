@@ -129,7 +129,7 @@ export async function GET(request: NextRequest) {
     // Optimize query by using estimated count for better performance (except for exports)
     let query = supabase
       .from('tickets')
-      .select('id, ticket_number, device_type, owner_name, facility, status, description, assigned_to, created_at, updated_at, completed_at, remarks', { count: isExport ? 'exact' : 'estimated' })
+      .select('id, ticket_number, device_type, owner_name, facility, status, description, serial_number, assigned_to, created_at, updated_at, completed_at, remarks', { count: isExport ? 'exact' : 'estimated' })
 
     if (statusParam) {
       query = query.eq('status', statusParam)
