@@ -263,6 +263,7 @@ function TicketsTable({ user }: TicketsTableProps) {
             ticket.device_type,
             ticket.repair_reason,
             ticket.owner_name,
+            ticket.serial_number || '',
             ticket.facility,
             ticket.status,
             ticket.assigned_to || '',
@@ -374,6 +375,7 @@ function TicketsTable({ user }: TicketsTableProps) {
               <th className="text-left p-4 text-gray-700 font-semibold">Device</th>
               <th className="text-left p-4 text-gray-700 font-semibold">Issue</th>
               <th className="text-left p-4 text-gray-700 font-semibold">Owner&apos;s Name</th>
+              <th className="text-left p-4 text-gray-700 font-semibold">Serial Number</th>
               <th className="text-left p-4 text-gray-700 font-semibold">Facility</th>
               <th className="text-left p-4 text-gray-700 font-semibold">Status</th>
               <th className="text-left p-4 text-gray-700 font-semibold">Repair By</th>
@@ -397,6 +399,15 @@ function TicketsTable({ user }: TicketsTableProps) {
                   </div>
                 </td>
                 <td className="p-4 text-gray-800">{ticket.owner_name}</td>
+                <td className="p-4 text-gray-800">
+                  {ticket.serial_number ? (
+                    <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">
+                      {ticket.serial_number}
+                    </span>
+                  ) : (
+                    <span className="text-gray-500 italic">N/A</span>
+                  )}
+                </td>
                 <td className="p-4 text-gray-800">{ticket.facility?.toUpperCase?.() || ticket.facility}</td>
                 <td className="p-4">{getStatusBadge(ticket.status)}</td>
                 <td className="p-4 text-gray-800">
