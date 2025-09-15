@@ -10,6 +10,7 @@ interface Ticket {
 	owner_name: string
 	facility: string
 	status: string
+	serial_number?: string | null
 	assigned_to: string | null
 	created_at: string
 	updated_at: string
