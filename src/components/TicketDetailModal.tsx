@@ -83,7 +83,7 @@ export default function TicketDetailModal({ isOpen, onClose, ticket }: TicketDet
       ></div>
 
       {/* Modal */}
-      <div className="relative w-full max-w-2xl mx-4 bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div className="relative w-full max-w-6xl mx-4 bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 shadow-2xl max-h-[95vh] overflow-hidden">
         {/* Header */}
         <div className="p-6 border-b border-white/10">
           <div className="flex items-center justify-between">
@@ -99,110 +99,126 @@ export default function TicketDetailModal({ isOpen, onClose, ticket }: TicketDet
           </div>
         </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-6">
-          {/* Ticket Number */}
-          <div className="bg-white/5 rounded-xl p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-white/80 text-sm mb-1">Ticket Number</p>
-                <p className="text-2xl font-bold text-emerald-400 font-mono">{ticket.ticket_number}</p>
+        {/* Content - Landscape Layout */}
+        <div className="p-6 overflow-y-auto max-h-[calc(95vh-140px)]">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            {/* Left Column - Main Info */}
+            <div className="lg:col-span-2 space-y-4">
+              {/* Ticket Number & Status Row */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-white/5 rounded-xl p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-white/80 text-sm mb-1">Ticket Number</p>
+                      <p className="text-xl font-bold text-emerald-400 font-mono">{ticket.ticket_number}</p>
+                    </div>
+                    <button
+                      onClick={copyTicketNumber}
+                      className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors group"
+                      title={copied ? "Copied!" : "Copy ticket number"}
+                    >
+                      {copied ? (
+                        <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4 text-white/70 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
+                <div className="bg-white/5 rounded-xl p-4">
+                  <p className="text-white/80 text-sm mb-2">Status</p>
+                  {getStatusBadge(ticket.status)}
+                </div>
               </div>
-              <button
-                onClick={copyTicketNumber}
-                className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors group"
-                title={copied ? "Copied!" : "Copy ticket number"}
-              >
-                {copied ? (
-                  <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5 text-white/70 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                )}
-              </button>
-            </div>
-          </div>
 
-          {/* Status */}
-          <div className="bg-white/5 rounded-xl p-4">
-            <p className="text-white/80 text-sm mb-2">Status</p>
-            {getStatusBadge(ticket.status)}
-          </div>
+              {/* Device Information Row */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-white/5 rounded-xl p-4">
+                  <p className="text-white/80 text-sm mb-1">Device Type</p>
+                  <p className="text-white font-medium">{ticket.device_type}</p>
+                </div>
+                <div className="bg-white/5 rounded-xl p-4">
+                  <p className="text-white/80 text-sm mb-1">Serial Number</p>
+                  <p className="text-white font-medium">
+                    {ticket.serial_number ? (
+                      <span className="font-mono text-sm bg-gray-100/20 px-2 py-1 rounded">
+                        {ticket.serial_number}
+                      </span>
+                    ) : (
+                      <span className="text-white/50 italic">N/A</span>
+                    )}
+                  </p>
+                </div>
+              </div>
 
-          {/* Device Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white/5 rounded-xl p-4">
-              <p className="text-white/80 text-sm mb-1">Device Type</p>
-              <p className="text-white font-medium">{ticket.device_type}</p>
-            </div>
-            <div className="bg-white/5 rounded-xl p-4">
-              <p className="text-white/80 text-sm mb-1">Serial Number</p>
-              <p className="text-white font-medium">
-                {ticket.serial_number ? (
-                  <span className="font-mono text-sm bg-gray-100/20 px-2 py-1 rounded">
-                    {ticket.serial_number}
-                  </span>
-                ) : (
-                  <span className="text-white/50 italic">N/A</span>
-                )}
-              </p>
-            </div>
-          </div>
+              {/* Owner and Facility Row */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-white/5 rounded-xl p-4">
+                  <p className="text-white/80 text-sm mb-1">Owner's Name</p>
+                  <p className="text-white font-medium">{ticket.owner_name}</p>
+                </div>
+                <div className="bg-white/5 rounded-xl p-4">
+                  <p className="text-white/80 text-sm mb-1">Facility</p>
+                  <p className="text-white font-medium">{ticket.facility}</p>
+                </div>
+              </div>
 
-          {/* Issue Description */}
-          <div className="bg-white/5 rounded-xl p-4">
-            <p className="text-white/80 text-sm mb-2">Issue Description</p>
-            <p className="text-white leading-relaxed">{ticket.repair_reason}</p>
-          </div>
-
-          {/* Owner and Facility */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white/5 rounded-xl p-4">
-              <p className="text-white/80 text-sm mb-1">Owner's Name</p>
-              <p className="text-white font-medium">{ticket.owner_name}</p>
+              {/* Issue Description */}
+              <div className="bg-white/5 rounded-xl p-4">
+                <p className="text-white/80 text-sm mb-2">Issue Description</p>
+                <p className="text-white leading-relaxed">{ticket.repair_reason}</p>
+              </div>
             </div>
-            <div className="bg-white/5 rounded-xl p-4">
-              <p className="text-white/80 text-sm mb-1">Facility</p>
-              <p className="text-white font-medium">{ticket.facility}</p>
-            </div>
-          </div>
 
-          {/* Assignment */}
-          <div className="bg-white/5 rounded-xl p-4">
-            <p className="text-white/80 text-sm mb-1">Assigned To</p>
-            <p className="text-white font-medium">
-              {ticket.assigned_to || (
-                <span className="text-white/50 italic">Unassigned</span>
-              )}
-            </p>
-          </div>
+            {/* Right Column - Assignment & Actions */}
+            <div className="space-y-4">
+              {/* Assignment */}
+              <div className="bg-white/5 rounded-xl p-4">
+                <p className="text-white/80 text-sm mb-1">Assigned To</p>
+                <p className="text-white font-medium">
+                  {ticket.assigned_to || (
+                    <span className="text-white/50 italic">Unassigned</span>
+                  )}
+                </p>
+              </div>
 
-          {/* Remarks */}
-          <div className="bg-white/5 rounded-xl p-4">
-            <p className="text-white/80 text-sm mb-2">Action Taken / Remarks</p>
-            <p className="text-white leading-relaxed">
-              {ticket.remarks && ticket.remarks.trim() !== '' ? ticket.remarks : (
-                <span className="text-white/50 italic">No remarks added yet</span>
-              )}
-            </p>
-          </div>
+              {/* Timestamps */}
+              <div className="bg-white/5 rounded-xl p-4">
+                <p className="text-white/80 text-sm mb-3">Timeline</p>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-white/60 text-xs">Created</p>
+                    <p className="text-white text-sm">{formatDateTime(ticket.created_at)}</p>
+                  </div>
+                  <div>
+                    <p className="text-white/60 text-xs">Last Updated</p>
+                    <p className="text-white text-sm">{formatDateTime(ticket.updated_at)}</p>
+                  </div>
+                  {ticket.completed_at && (
+                    <div>
+                      <p className="text-white/60 text-xs">Completed</p>
+                      <p className="text-white text-sm">{formatDateTime(ticket.completed_at)}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
 
-          {/* Timestamps */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white/5 rounded-xl p-4">
-              <p className="text-white/80 text-sm mb-1">Created At</p>
-              <p className="text-white text-sm">{formatDateTime(ticket.created_at)}</p>
-            </div>
-            <div className="bg-white/5 rounded-xl p-4">
-              <p className="text-white/80 text-sm mb-1">Last Updated</p>
-              <p className="text-white text-sm">{formatDateTime(ticket.updated_at)}</p>
-            </div>
-            <div className="bg-white/5 rounded-xl p-4">
-              <p className="text-white/80 text-sm mb-1">Completed At</p>
-              <p className="text-white text-sm">{formatDateTime(ticket.completed_at)}</p>
+              {/* Remarks */}
+              <div className="bg-white/5 rounded-xl p-4">
+                <p className="text-white/80 text-sm mb-2">Action Taken / Remarks</p>
+                <div className="max-h-32 overflow-y-auto">
+                  <p className="text-white leading-relaxed text-sm">
+                    {ticket.remarks && ticket.remarks.trim() !== '' ? ticket.remarks : (
+                      <span className="text-white/50 italic">No remarks added yet</span>
+                    )}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
