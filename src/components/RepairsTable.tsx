@@ -25,6 +25,7 @@ interface Ticket {
 function RepairsTable() {
 	const [repairs, setRepairs] = useState<Ticket[]>([])
 	const [loading, setLoading] = useState(true)
+	const [initialLoading, setInitialLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
 	const [page, setPage] = useState<number>(1)
 	const [limit, setLimit] = useState<number>(10)
@@ -242,7 +243,13 @@ function RepairsTable() {
 				const controller = new AbortController()
 				abortRef.current = controller
 				setLoading(true)
-				const res = await fetch(`/api/tickets?status=completed&page=${pageParam}&limit=${limit}` , { signal: controller.signal, cache: 'no-store' })
+				const res = await fetch(`/api/tickets?status=completed&page=${pageParam}&limit=${limit}` , {
+					signal: controller.signal,
+					cache: 'default',
+					headers: {
+						'Cache-Control': 'max-age=30'
+					}
+				})
 				const data = await res.json()
 				if (!res.ok) throw new Error(data.error || 'Failed to fetch tickets')
 				setRepairs(data.tickets as Ticket[])
@@ -253,17 +260,77 @@ function RepairsTable() {
 				setError(message)
 			} finally {
 				setLoading(false)
+				setInitialLoading(false)
 			}
 		}
 		fetchCompleted(page)
 	}, [page, limit])
 
-	if (loading) {
+	// Skeleton loading component
+	const SkeletonRow = () => (
+		<tr className="border-b border-gray-100">
+			{Array.from({ length: 12 }).map((_, i) => (
+				<td key={i} className="p-4">
+					<div className="animate-pulse bg-gray-200 h-4 rounded"></div>
+				</td>
+			))}
+		</tr>
+	)
+
+	if (initialLoading) {
 		return (
-			<div className="bg-white rounded-3xl border border-gray-200 shadow-xl p-8">
-				<div className="flex items-center justify-center">
-					<div className="animate-spin w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full"></div>
-					<span className="ml-3 text-gray-600">Loading completed repairs...</span>
+			<div className="bg-white rounded-3xl border border-gray-200 shadow-xl overflow-hidden">
+				{/* Header Section */}
+				<div className="p-6 border-b border-gray-200 bg-gradient-to-r from-emerald-50 to-teal-50">
+					<div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+						<div className="flex items-center gap-4">
+							<h2 className="text-2xl font-bold text-gray-800">Completed Repairs</h2>
+							<div className="animate-pulse bg-gray-200 h-8 w-16 rounded"></div>
+						</div>
+						<div className="flex flex-col sm:flex-row gap-3">
+							<div className="animate-pulse bg-gray-200 h-10 w-32 rounded-xl"></div>
+							<div className="animate-pulse bg-gray-200 h-10 w-24 rounded-xl"></div>
+						</div>
+					</div>
+
+					{/* Filters Row */}
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+						{Array.from({ length: 4 }).map((_, i) => (
+							<div key={i} className="animate-pulse bg-gray-200 h-10 rounded-xl"></div>
+						))}
+					</div>
+
+					{/* Stats Row */}
+					<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+						<div className="animate-pulse bg-gray-200 h-6 w-48 rounded"></div>
+					</div>
+				</div>
+
+				{/* Skeleton Table */}
+				<div className="overflow-x-auto">
+					<table className="w-full">
+						<thead>
+							<tr className="border-b border-gray-200 bg-gray-50">
+								<th className="p-4"><div className="animate-pulse bg-gray-200 h-4 w-4 rounded"></div></th>
+								<th className="text-left p-4 text-gray-700 font-semibold">Ticket #</th>
+								<th className="text-left p-4 text-gray-700 font-semibold">Device</th>
+								<th className="text-left p-4 text-gray-700 font-semibold">Issue</th>
+								<th className="text-left p-4 text-gray-700 font-semibold">Owner</th>
+								<th className="text-left p-4 text-gray-700 font-semibold">Serial Number</th>
+								<th className="text-left p-4 text-gray-700 font-semibold">Facility</th>
+								<th className="text-left p-4 text-gray-700 font-semibold">Repair By</th>
+								<th className="text-left p-4 text-gray-700 font-semibold">Action taken</th>
+								<th className="text-left p-4 text-gray-700 font-semibold">Date Accepted</th>
+								<th className="text-left p-4 text-gray-700 font-semibold">Completed At</th>
+								<th className="text-left p-4 text-gray-700 font-semibold">Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							{Array.from({ length: 5 }).map((_, i) => (
+								<SkeletonRow key={i} />
+							))}
+						</tbody>
+					</table>
 				</div>
 			</div>
 		)

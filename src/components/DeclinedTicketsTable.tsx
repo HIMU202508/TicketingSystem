@@ -31,6 +31,7 @@ function DeclinedTicketsTable({ className = '' }: DeclinedTicketsTableProps) {
   const [declinedTickets, setDeclinedTickets] = useState<DeclinedTicket[]>([])
   const [stats, setStats] = useState<DeclinedTicketsStats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [initialLoading, setInitialLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [facilityFilter, setFacilityFilter] = useState('')
@@ -53,7 +54,12 @@ function DeclinedTicketsTable({ className = '' }: DeclinedTicketsTableProps) {
       if (facilityFilter) params.append('facility', facilityFilter)
       if (declinedByFilter) params.append('declined_by', declinedByFilter)
 
-      const response = await fetch(`/api/declined-tickets?${params}`)
+      const response = await fetch(`/api/declined-tickets?${params}`, {
+        cache: 'default',
+        headers: {
+          'Cache-Control': 'max-age=30'
+        }
+      })
       const data = await response.json()
 
       if (!response.ok) {
@@ -67,6 +73,7 @@ function DeclinedTicketsTable({ className = '' }: DeclinedTicketsTableProps) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
+      setInitialLoading(false)
     }
   }, [page, searchQuery, facilityFilter, declinedByFilter])
 
@@ -74,8 +81,12 @@ function DeclinedTicketsTable({ className = '' }: DeclinedTicketsTableProps) {
     try {
       const response = await fetch('/api/declined-tickets', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'stats' })
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'max-age=60'
+        },
+        body: JSON.stringify({ action: 'stats' }),
+        cache: 'default'
       })
       const data = await response.json()
 
@@ -91,9 +102,10 @@ function DeclinedTicketsTable({ className = '' }: DeclinedTicketsTableProps) {
 
   useEffect(() => {
     fetchDeclinedTickets()
-  }, [page, searchQuery, facilityFilter, declinedByFilter])
+  }, [fetchDeclinedTickets])
 
   useEffect(() => {
+    // Fetch stats in parallel with initial data load
     fetchStats()
   }, [])
 
@@ -318,12 +330,34 @@ function DeclinedTicketsTable({ className = '' }: DeclinedTicketsTableProps) {
 
       {/* Enhanced Table */}
       <div className="overflow-x-auto">
-        {loading ? (
-          <div className="p-12 text-center">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <div className="animate-spin w-8 h-8 border-4 border-red-500 border-t-transparent rounded-full"></div>
-            </div>
-            <p className="text-gray-600 font-medium">Loading declined tickets...</p>
+        {initialLoading ? (
+          <div>
+            {/* Skeleton Table */}
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200 bg-gray-50">
+                  <th className="text-left p-4 text-gray-700 font-semibold">Ticket #</th>
+                  <th className="text-left p-4 text-gray-700 font-semibold">Device</th>
+                  <th className="text-left p-4 text-gray-700 font-semibold">Issue</th>
+                  <th className="text-left p-4 text-gray-700 font-semibold">Owner</th>
+                  <th className="text-left p-4 text-gray-700 font-semibold">Facility</th>
+                  <th className="text-left p-4 text-gray-700 font-semibold">Declined By</th>
+                  <th className="text-left p-4 text-gray-700 font-semibold">Reason</th>
+                  <th className="text-left p-4 text-gray-700 font-semibold">Declined At</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="border-b border-gray-100">
+                    {Array.from({ length: 8 }).map((_, j) => (
+                      <td key={j} className="p-4">
+                        <div className="animate-pulse bg-gray-200 h-4 rounded"></div>
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         ) : declinedTickets.length === 0 ? (
           <div className="p-12 text-center">

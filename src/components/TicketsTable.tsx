@@ -27,6 +27,7 @@ interface TicketsTableProps {
 function TicketsTable({ user }: TicketsTableProps) {
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [loading, setLoading] = useState(true)
+  const [initialLoading, setInitialLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [editingTicket, setEditingTicket] = useState<Ticket | null>(null)
   const [actionLoading, setActionLoading] = useState(false)
@@ -67,7 +68,13 @@ function TicketsTable({ user }: TicketsTableProps) {
         params.set('limit', String(limitParam))
       }
       const url = `/api/tickets${params.toString() ? `?${params.toString()}` : ''}`
-      const response = await fetch(url, { signal: controller.signal, cache: 'no-store' })
+      const response = await fetch(url, {
+        signal: controller.signal,
+        cache: 'default',
+        headers: {
+          'Cache-Control': 'max-age=30'
+        }
+      })
       const data = await response.json()
 
       if (!response.ok) {
@@ -83,6 +90,7 @@ function TicketsTable({ user }: TicketsTableProps) {
       setError(message)
     } finally {
       setLoading(false)
+      setInitialLoading(false)
     }
   }, [statusFilter, searchQuery])
 
@@ -93,7 +101,7 @@ function TicketsTable({ user }: TicketsTableProps) {
     }
     debounceRef.current = window.setTimeout(() => {
       fetchTickets(page, limit)
-    }, 200)
+    }, 100)
 
     return () => {
       if (debounceRef.current) {
@@ -291,12 +299,56 @@ function TicketsTable({ user }: TicketsTableProps) {
     })
   }, [tickets, searchQuery, statusFilter])
 
-  if (loading) {
+  // Skeleton loading component
+  const SkeletonRow = () => (
+    <tr className="border-b border-gray-100">
+      {Array.from({ length: 11 }).map((_, i) => (
+        <td key={i} className="p-4">
+          <div className="animate-pulse bg-gray-200 h-4 rounded"></div>
+        </td>
+      ))}
+    </tr>
+  )
+
+  if (initialLoading) {
     return (
-      <div className="bg-white/90 backdrop-blur-md rounded-3xl border border-green-200/50 shadow-xl p-8">
-        <div className="flex items-center justify-center">
-          <div className="animate-spin w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full"></div>
-          <span className="ml-3 text-gray-600">Loading tickets...</span>
+      <div className="bg-white/95 backdrop-blur-md rounded-3xl border border-green-200/50 shadow-xl overflow-hidden">
+        {/* Table Header */}
+        <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-800">All Tickets</h2>
+            <div className="flex items-center gap-4">
+              <div className="animate-pulse bg-gray-200 h-8 w-32 rounded"></div>
+              <div className="animate-pulse bg-gray-200 h-8 w-40 rounded"></div>
+              <div className="animate-pulse bg-gray-200 h-8 w-72 rounded"></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Skeleton Table */}
+        <div className="bg-white">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-200 bg-gray-50">
+                <th className="text-left p-4 text-gray-700 font-semibold">Ticket #</th>
+                <th className="text-left p-4 text-gray-700 font-semibold">Device</th>
+                <th className="text-left p-4 text-gray-700 font-semibold">Issue</th>
+                <th className="text-left p-4 text-gray-700 font-semibold">Owner&apos;s Name</th>
+                <th className="text-left p-4 text-gray-700 font-semibold">Serial Number</th>
+                <th className="text-left p-4 text-gray-700 font-semibold">Facility</th>
+                <th className="text-left p-4 text-gray-700 font-semibold">Status</th>
+                <th className="text-left p-4 text-gray-700 font-semibold">Repair By</th>
+                <th className="text-left p-4 text-gray-700 font-semibold">Action taken</th>
+                <th className="text-left p-4 text-gray-700 font-semibold">Created</th>
+                <th className="text-left p-4 text-gray-700 font-semibold">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <SkeletonRow key={i} />
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     )
