@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase-browser'
+import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 
 interface LoginFormProps {
@@ -16,7 +16,6 @@ export default function LoginForm({ isModal = false, onClose }: LoginFormProps) 
   const [error, setError] = useState<string | null>(null)
   const [showModal, setShowModal] = useState(true)
   const router = useRouter()
-  const supabase = createClient()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

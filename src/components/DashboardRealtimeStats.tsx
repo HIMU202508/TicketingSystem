@@ -1,11 +1,10 @@
 'use client'
 
 import { useEffect, useMemo, useState, useRef } from 'react'
-import { createClient } from '@/lib/supabase-browser'
+import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 
 export default function DashboardRealtimeStats() {
-  const supabase = useMemo(() => createClient(), [])
   const [pending, setPending] = useState(0)
   const [inProgress, setInProgress] = useState(0)
   const [completedToday, setCompletedToday] = useState(0)

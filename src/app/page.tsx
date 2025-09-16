@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase-browser'
+import { supabase } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
 import TicketModal from '@/components/TicketModal'
@@ -13,7 +13,6 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [isTicketModalOpen, setIsTicketModalOpen] = useState(false)
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
-  const supabase = createClient()
   const router = useRouter()
 
   useEffect(() => {
