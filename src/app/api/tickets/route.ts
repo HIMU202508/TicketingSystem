@@ -8,6 +8,7 @@ type CreateTicketBody = {
   ownerName: string
   facility: string
   ticketNumber: string
+  serialNumber?: string
 }
 
 type DbTicketRow = {
@@ -18,6 +19,7 @@ type DbTicketRow = {
   facility: string
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled' | 'not_functioning' | 'declined'
   description: string | null
+  serial_number: string | null
   assigned_to: string | null
   created_at: string
   updated_at: string
@@ -34,6 +36,7 @@ function mapRowToTicket(row: DbTicketRow) {
     owner_name: row.owner_name,
     facility: row.facility,
     status: row.status,
+    serial_number: row.serial_number ?? null,
     assigned_to: row.assigned_to ?? null,
     created_at: row.created_at,
     updated_at: row.updated_at,
@@ -46,7 +49,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as CreateTicketBody
 
-    const { device, repairReason, ownerName, facility, ticketNumber } = body
+    const { device, repairReason, ownerName, facility, ticketNumber, serialNumber } = body
 
     if (!device || !repairReason || !ownerName || !facility || !ticketNumber) {
       return NextResponse.json(
@@ -63,6 +66,7 @@ export async function POST(request: NextRequest) {
         description: repairReason,
         owner_name: ownerName,
         facility,
+        serial_number: serialNumber || null,
         status: 'pending',
         assigned_to: null,
       })
@@ -125,7 +129,7 @@ export async function GET(request: NextRequest) {
     // Optimize query by using estimated count for better performance (except for exports)
     let query = supabase
       .from('tickets')
-      .select('id, ticket_number, device_type, owner_name, facility, status, description, assigned_to, created_at, updated_at, completed_at, remarks', { count: isExport ? 'exact' : 'estimated' })
+      .select('id, ticket_number, device_type, owner_name, facility, status, description, serial_number, assigned_to, created_at, updated_at, completed_at, remarks', { count: isExport ? 'exact' : 'estimated' })
 
     if (statusParam) {
       query = query.eq('status', statusParam)

@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS tickets (
   facility VARCHAR(255) NOT NULL,
   status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'in_progress', 'completed', 'cancelled', 'not_functioning', 'rejected')),
   description TEXT,
+  serial_number VARCHAR(255),
   priority VARCHAR(20) DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high', 'urgent')),
   assigned_to VARCHAR(255),
   remarks TEXT,

@@ -1,6 +1,10 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState, useCallback, memo } from 'react'
+import TicketDetailModal from '@/components/TicketDetailModal'
+
+type SortField = 'ticket_number' | 'device_type' | 'owner_name' | 'facility' | 'assigned_to' | 'updated_at' | 'completed_at' | 'created_at'
+type SortDirection = 'asc' | 'desc'
 
 interface Ticket {
 	id: number
@@ -10,6 +14,7 @@ interface Ticket {
 	owner_name: string
 	facility: string
 	status: string
+	serial_number?: string | null
 	assigned_to: string | null
 	created_at: string
 	updated_at: string
@@ -31,6 +36,7 @@ function RepairsTable() {
 	const [assignedToFilter, setAssignedToFilter] = useState<string>('')
 	const [selectedRepairs, setSelectedRepairs] = useState<Set<number>>(new Set())
 	const [viewMode, setViewMode] = useState<'table' | 'grid'>('table')
+	const [viewingTicket, setViewingTicket] = useState<Ticket | null>(null)
 	const abortRef = useRef<AbortController | null>(null)
 
 	// Format date function
@@ -133,13 +139,13 @@ function RepairsTable() {
 
 		const selectedData = filteredRepairs.filter(r => selectedRepairs.has(r.id))
 		const headers = [
-			'Ticket #', 'Device', 'Issue', 'Owner', 'Facility',
+			'Ticket #', 'Device', 'Issue', 'Owner', 'Serial Number', 'Facility',
 			'Repair By', 'Action taken', 'Date Accepted', 'Completed At', 'Created At'
 		]
 
 		const rows = selectedData.map((r) => [
 			r.ticket_number, r.device_type, r.repair_reason, r.owner_name,
-			r.facility, r.assigned_to ?? '', r.remarks ?? '',
+			r.serial_number ?? '', r.facility, r.assigned_to ?? '', r.remarks ?? '',
 			r.assigned_to ? formatDateTime(r.updated_at) : 'Not accepted yet',
 			formatDateTime(r.completed_at ?? r.updated_at), formatDateTime(r.created_at)
 		])
@@ -183,6 +189,7 @@ function RepairsTable() {
 				'Device',
 				'Issue',
 				'Owner',
+				'Serial Number',
 				'Facility',
 				'Repair By',
 				'Action taken',
@@ -196,6 +203,7 @@ function RepairsTable() {
 				r.device_type,
 				r.repair_reason,
 				r.owner_name,
+				r.serial_number ?? '',
 				r.facility,
 				r.assigned_to ?? '',
 				r.remarks ?? '',
@@ -373,7 +381,7 @@ function RepairsTable() {
 					>
 						<option value="">All Technicians</option>
 						{uniqueAssignees.map(assignee => (
-							<option key={assignee} value={assignee}>{assignee}</option>
+							<option key={assignee || 'unassigned'} value={assignee || ''}>{assignee}</option>
 						))}
 					</select>
 
@@ -437,11 +445,13 @@ function RepairsTable() {
 									{ field: 'device_type' as SortField, label: 'Device' },
 									{ field: null, label: 'Issue' },
 									{ field: 'owner_name' as SortField, label: 'Owner' },
+									{ field: null, label: 'Serial Number' },
 									{ field: 'facility' as SortField, label: 'Facility' },
 									{ field: 'assigned_to' as SortField, label: 'Repair By' },
 									{ field: null, label: 'Action taken' },
 									{ field: 'updated_at' as SortField, label: 'Date Accepted' },
-									{ field: 'completed_at' as SortField, label: 'Completed At' }
+									{ field: 'completed_at' as SortField, label: 'Completed At' },
+									{ field: null, label: 'Actions' }
 								].map(({ field, label }) => (
 									<th key={label} className="text-left p-4 text-gray-700 font-semibold">
 										{field ? (
@@ -490,6 +500,15 @@ function RepairsTable() {
 								</td>
 								<td className="p-4 text-gray-800">{r.owner_name}</td>
 								<td className="p-4 text-gray-800">
+									{r.serial_number ? (
+										<span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">
+											{r.serial_number}
+										</span>
+									) : (
+										<span className="text-gray-500 italic">N/A</span>
+									)}
+								</td>
+								<td className="p-4 text-gray-800">
 									<span className="bg-gray-100 px-2 py-1 rounded text-xs font-medium text-gray-700">
 										{r.facility}
 									</span>
@@ -526,6 +545,18 @@ function RepairsTable() {
 									<div className="text-sm">
 										{formatDateTime(r.completed_at ?? r.updated_at)}
 									</div>
+								</td>
+								<td className="p-4">
+									<button
+										onClick={() => setViewingTicket(r)}
+										className="p-2 bg-purple-500/20 hover:bg-purple-500/30 text-purple-600 rounded-lg transition-colors"
+										title="View ticket details"
+									>
+										<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+										</svg>
+									</button>
 								</td>
 							</tr>
 						))}
@@ -680,6 +711,13 @@ function RepairsTable() {
 					)}
 				</div>
 			)}
+
+			{/* Ticket Detail Modal */}
+			<TicketDetailModal
+				isOpen={!!viewingTicket}
+				onClose={() => setViewingTicket(null)}
+				ticket={viewingTicket}
+			/>
 		</div>
 	)
 }
