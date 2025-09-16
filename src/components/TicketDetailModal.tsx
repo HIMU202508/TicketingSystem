@@ -59,7 +59,7 @@ export default function TicketDetailModal({ isOpen, onClose, ticket }: TicketDet
     }
 
     return (
-      <span className={`px-3 py-1 rounded-full text-sm font-medium border ${statusStyles[status as keyof typeof statusStyles] || statusStyles.pending}`}>
+      <span className={`px-3 py-1 rounded-full text-sm font-medium border whitespace-nowrap ${statusStyles[status as keyof typeof statusStyles] || statusStyles.pending}`}>
         {statusLabels[status as keyof typeof statusLabels] || status}
       </span>
     )
