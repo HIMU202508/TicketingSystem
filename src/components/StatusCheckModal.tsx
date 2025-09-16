@@ -114,8 +114,8 @@ export default function StatusCheckModal({ isOpen, onClose }: StatusCheckModalPr
             </div>
           )}
           <div className="flex justify-end gap-2 pt-2">
-            <button type="button" onClick={close} className="px-4 py-2 rounded-xl bg-white/10 text-white">Close</button>
-            <button type="submit" disabled={loading} className="px-4 py-2 rounded-xl bg-purple-600 text-white disabled:opacity-50">
+            <button type="button" onClick={close} className="px-4 py-2 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-colors">Close</button>
+            <button type="submit" disabled={loading} className="px-4 py-2 rounded-xl bg-green-500 hover:bg-green-400 text-white disabled:opacity-50 transition-colors">
               {loading ? 'Checking...' : 'Check Status'}
             </button>
           </div>
