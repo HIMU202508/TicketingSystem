@@ -180,7 +180,7 @@ export default function TicketModal({ isOpen, onClose }: TicketModalProps) {
       ></div>
 
       {/* Modal */}
-      <div className="relative w-full max-w-sm mx-4 bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 shadow-2xl">
+      <div className="relative w-full max-w-md mx-4 bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 shadow-2xl">
         {!success ? (
           <>
             {/* Header */}
