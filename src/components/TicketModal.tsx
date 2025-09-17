@@ -40,6 +40,7 @@ export default function TicketModal({ isOpen, onClose }: TicketModalProps) {
     'Microphone',
     'Software',
     'Server',
+    'Network',
     'Others'
   ]
 
